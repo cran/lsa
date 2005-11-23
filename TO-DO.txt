@@ -1,0 +1,38 @@
+TO-DO:
+
+* eliminate query -> integrate into textmatrix
+* vignettes for the paper
+
+DONE 2005-11-23:
+
+* a lot of minor changes to make documentation better
+* smaller code changes
+* renamed core functions to lsa(), as.textmatrix(), fold_in()
+
+DONE 2005-11-12:
+* documentation refactured, added documentation for several new methods.
+* remove meanmax.R (doesn't fit the package
+* check query() to ensure it's working
+
+DONE 2005-11-11:
+* bugfix textmatrix to work properly with the vocabulary list!!!
+
+DONE 2005-11-08:
+
+    high-level functions:
+    
+       DONE * lsa_fold-in
+       DONE * lsa
+    
+    refacturing:
+    
+       
+       DONE * eliminate pseudo_docs
+       DONE   -> integrate into textmatrix
+       NOT POSSIBLE * connections
+       DONE * summary, print methods
+       DONE * rewrite "pseudo_docs" to table / factor?
+       NOT POSSIBLE * in triples.r: With(environment, { bla })
+       NOT POSSIBLE * getTriples: return list(S=S, P=P, O=O)
+    
+
