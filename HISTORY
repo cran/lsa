@@ -1,0 +1,220 @@
+﻿
+==============================
+  Release Notes for LSA 0.59
+       November 28, 2007
+==============================
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # 
+Open Issues
+# # # # # #
+
+Wishlist & Unresolved
+---------------------
+
+* error handling for empty files (no term docs)?
+* error handling für empty textvectors?
+
+* maybe GF*IDF boundaries instead of frequency 
+  boundaries
+
+* bugfix neccessary: textmatrix with controlled
+  vocabulary fails if no term is left
+
+* add phrase detection to textvector function ("my phrase"),
+  should not strip any special chars and should stay
+  case sensitive (Neal Snider, Stanford)
+
+* generalise architecture with text-processing chain
+
+* input document sanitizing routines or at least a
+  testing environment that can tell which files will
+  produce errors.
+
+* corpora package: global weights should always come
+  from the original textmatrix, especially when folding
+  in additional texts (see essay scoring example).
+  
+* corpora package: should decide automatically whether
+  it is a textfile, a directory, or a string.
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # 
+Changes
+# # # #
+
+Changes in 0.59
+---------------
+
+o   Fridolin Wild (2007-12-11)
+	
+	* bug fix (R crashed when calling lsa_corpus
+	  demo): essay scoring demo now calls data
+	  files to avoid this unicode problem (seems
+	  to be a bug in R).
+	
+	* stopword lists converted to .rda data files
+	
+	* unicode bugfix in tests
+	
+	* unicode bugfix for german umlaut
+	  conversion from html-entities in textvector()
+	  
+	* demo index readlines bugfix (two blank lines
+	  added)
+	
+	* landauer demo: X was using dimcalc_share()
+	  instead of dimcalc_raw()
+
+o   Fridolin Wild (2007-11-28)
+
+	* Dutch stopword list added (thanks to Marco Kalz,
+	  Open University Netherlands)
+	
+	* UTF-8 support enforced in stopword list, package
+	  description, textmatrix
+	  
+	* stemming bug fixed (stemming was _after_
+	  filtering by controlled vocabulary)
+	
+	* testing routine added for one-term matrices
+	
+	* special characters cleaned in textvector()
+	
+	* Optimised support for Arabic buckwalter transliterations
+	  (referring to the earlier request of Neal Snider, 
+	  Stanford, below). Included the following characters
+	  to 'be' alphanumerics: ' $ | _ - ~ > < & { } * `
+	  
+	* utf-8 conform umlaut replacement in textmatrix()
+	
+	* added warning for 'empty' files (empty after filtering)
+	  to textvector()
+	
+
+Changes in 0.58
+---------------
+
+o   Fridolin Wild (2006-08-01)
+
+    * added simple <XML> tag handling: tags are automatically
+      removed (requested by Simon Lin, Northwestern @ Feb 23, 2006)
+
+    * added arabic support for Buckwalter transliterations
+	  (requested by Neal Snider, Stanford @ Feb 21, 2006)
+	
+	* changed textmatrix() / textvector() standard language 
+	  to english
+
+    * textmatrix can now automatically remove terms with only
+	  numbers (requested by Simon Lin, Northwestern @ Feb 23, 2006)
+
+    * extended special character stripping ('#', '+', ...)
+
+    * added upper and lower boundaries for global frequencies
+
+    * demo for essay scoring added
+	
+	* data set with essays (corpus.6) added
+
+
+o   Fridolin Wild (2006-07-31)
+
+    * added random sample function for corpus selection.
+	  index can be returned to allow for re-use of the sample.
+
+    * added dimcalc_fraction()
+
+    * added support to textmatrix() to run not only over directories, 
+	  but also over a single file or a vector of files (or a mixed 
+	  vector with files and directories)
+
+    * added maxWordLength filtering
+
+    * added maxDocFreq filtering
+
+
+o   Jeff Verhulst (2006-04-21)
+
+    * bugfix: print.textmatrix()
+	  bug appeared: 2nd of jan 2006 (Claudia Mayr)
+      fix provided by: Jeff Verhulst, J&J Pharma R&D IM (2006)
+
+
+Changes in 0.57 (first public release)
+--------------------------------------
+
+o   2005-11-23:
+
+    * a lot of minor changes to make documentation better
+	
+    * smaller code changes
+	
+    * renamed core functions to lsa(), as.textmatrix(), fold_in()
+
+o   2005-11-22:
+	* chose NOT to integrate separator lines (would splash the handling!)
+      changed summary.textmatrix from matrix to vector output
+
+o   2005-11-12:
+
+    * documentation refactured, added documentation for several new methods.
+	
+    * removed meanmax.R (doesn't fit the package)
+	
+    * checked query() to ensure it's working
+
+o   2005-11-11:
+
+    * bugfix of textmatrix() to work properly with the vocabulary list
+	* textmatrix(): integrated the vocabulary order/sort functions...
+
+o   2005-11-08:
+
+    * added high-level functions:
+	   
+       * lsa_fold-in
+	   
+       * lsa
+    
+    * refacturing:
+	
+        * eliminated pseudo_docs
+          -> integrate into textmatrix
+	  
+        * connections for textmatrix turned out to be impossible
+		
+        * summary method
+		
+	    * print method
+		
+        * rewrote "pseudo_docs" to table / factor
+		
+		* added vocabulary filter to textmatrix / textvector
+		
+        * in triples.r: use of "With(environment, { bla })" 
+	      turned out impossible
+        
+		* getTriples: use of "return list(S=S, P=P, O=O)"
+	      turned out impossible
+    
+
+o   2005-10-04: added nchar(..., type="chars") to count characters, not bytes
+
+
+Changes in 0.47
+---------------
+
+o   2005-08-26: 
+
+    * renamed dt_triples to textvector and dt_matrix to textmatrix
+
+
+Changes in 0.46
+---------------
+
+o   2005-08-25:
+
+    * added "\\[|\\]|\\{|\\}" to gsub in textvector
+
+--------------------------------------------------

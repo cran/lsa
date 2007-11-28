@@ -136,3 +136,127 @@ unlink(td1, recursive=TRUE)
 unlink(td2, recursive=TRUE)
 
 
+# -  -  -  -  -  -  -  -  -  -  -  -  -  -  
+# word length
+
+td1 = tempfile()
+write( c("123", "1234", "12345", "1234567"), file=td1)
+dtm = textmatrix(td1, minWordLength=4, maxWordLength=5)
+lsatest( length(rownames(dtm)) == 2, "[textmatrix] - word length")
+unlink(td1, recursive=TRUE)
+
+# -  -  -  -  -  -  -  -  -  -  -  -  -  -  
+# frequency cut-offs
+
+td1 = tempfile()
+write( c("A", "A", "A", "A", "B", "B", "B", "B", "B", "C", "C", "C", "D"), file=td1)
+dtm = textmatrix(td1, minWordLength=0, maxWordLength=F, minDocFreq=3, maxDocFreq=4)
+lsatest( length(rownames(dtm)) == 2, "[textmatrix] - document frequencies")
+unlink(td1, recursive=TRUE)
+
+# -  -  -  -  -  -  -  -  -  -  -  -  -  -  
+# input files: file, files, dir, dirs, files and dirs
+
+td1 = tempfile()
+dir.create(td1)
+
+td2 = paste(td1,"A1.txt",sep="/")
+write( c("A", "A", "A", "A", "B", "B", "B", "B", "B", "C", "C", "C", "D"), file=td2)
+
+td3 = paste(td1,"A2.txt",sep="/")
+write( c("A", "A", "A", "A", "B", "B", "B", "B", "B", "C", "C", "C", "D"), file=td3)
+
+td4 = paste(td1,"B",sep="/")
+dir.create(td4)
+td5 = paste(td4, "B1.txt", sep="/")
+write( c("A", "A", "A", "A", "B", "B", "B", "B", "B", "C", "C", "C", "D"), file=td5)
+td6 = paste(td4, "B2.txt", sep="/")
+write( c("A", "A", "A", "A", "B", "B", "B", "B", "B", "C", "C", "C", "D"), file=td6)
+
+td7 = paste(td1,"C",sep="/")
+dir.create(td7)
+td8 = paste(td7, "C1.txt", sep="/")
+write( c("A", "A", "A", "A", "B", "B", "B", "B", "B", "C", "C", "C", "D"), file=td8)
+td9 = paste(td7, "C2.txt", sep="/")
+write( c("A", "A", "A", "A", "B", "B", "B", "B", "B", "C", "C", "C", "D"), file=td9)
+
+dtm1 = textmatrix(td2, minWordLength=0)
+dtm2 = textmatrix(c(td2, td3), minWordLength=0)
+dtm3 = textmatrix(td4, minWordLength=0)
+dtm4 = textmatrix(c(td4,td7), minWordLength=0)
+dtm5 = textmatrix(td1, minWordLength=0)
+
+lsatest( length(colnames(dtm1)) == 1, "[textmatrix] - input files: file ")
+lsatest( length(colnames(dtm2)) == 2, "[textmatrix] - input files: files ")
+lsatest( length(colnames(dtm3)) == 2, "[textmatrix] - input files: dir")
+lsatest( length(colnames(dtm4)) == 4, "[textmatrix] - input files: dirs ")
+lsatest( length(colnames(dtm5)) == 6, "[textmatrix] - input files: files + dirs ")
+
+unlink(td1, recursive=TRUE)
+
+# -  -  -  -  -  -  -  -  -  -  -  -  -  -  
+# XML/HTML parsing
+
+td1 = tempfile()
+write( c("<html>\n<head></head><body background=\"#FFFFFF\">&auml;bc<h1>test></h1></body></html>"), file=td1)
+lsatest( length(rownames(textmatrix(td1, removeXML=TRUE, language="german"))) == 2, "[textmatrix] - XML removal")
+### lsatest( rownames(textmatrix(td1, removeXML=TRUE, language="german"))[1] == "\u00e4bc", "[textmatrix] - html German umlaut replacement")
+unlink(td1)
+
+# -  -  -  -  -  -  -  -  -  -  -  -  -  -  
+# remove numbers
+
+td1 = tempfile()
+write( c("abc def 123 324 def12 ab1 defg abc"), file=td1)
+lsatest( length(rownames(textmatrix(td1, removeNumbers=TRUE))) == 5, "[textmatrix] - remove numbers")
+unlink(td1)
+
+# -  -  -  -  -  -  -  -  -  -  -  -  -  -  
+# arabic buckwalter support
+
+td1 = tempfile()
+dir.create(td1)
+write( "HalAwaY_1    jan~ap_1    muriyd_1   taHoDiyr_1      |l_2", file=paste(td1,"A1",sep="/") )
+write( "HalAwap_2    jaraH-a_1   muro$id_1  taHoDiyriy~_1   |laY_1", file=paste(td1,"A2",sep="/") )
+write( "HalAyib_2    jaraY-i_1   muroDiy_1  taHoSiyl_1      |lam_1 ", file=paste(td1,"A3",sep="/") )
+lsatest( rownames(textmatrix(td1, language="arabic"))[9] == "muro$id_1", "[textmatrix] - arabic")
+unlink(td1, recursive=TRUE)
+
+# -  -  -  -  -  -  -  -  -  -  -  -  -  -  
+# global frequency boundaries
+
+td1 = tempfile()
+dir.create(td1)
+write( "hund hund katze maus", file=paste(td1,"A1",sep="/") )
+write( "hund katze birne apfel banana birne", file=paste(td1,"A2",sep="/") )
+write( "hund birne", file=paste(td1,"A3",sep="/") )
+lsatest( length(rownames(textmatrix(td1, minGlobFreq=2)))==3, "[textmatrix] - global frequency (minimum)" )
+lsatest( length(rownames(textmatrix(td1, maxGlobFreq=2, minGlobFreq=2)))==2, "[textmatrix] - global frequency (minimum)" )
+unlink(td1, recursive=TRUE)
+
+# -  -  -  -  -  -  -  -  -  -  -  -  -  -  
+# stemming in german
+
+td1 = tempfile()
+dir.create(td1)
+write( "systeme", file=paste(td1,"A1",sep="/") )
+write( "hunde", file=paste(td1,"A2",sep="/") )
+td2 = tempfile()
+dir.create(td2)
+write( "von systemen von hunden", file=paste(td2,"A3",sep="/") )
+tm1 = textmatrix(td1, stemming=T, language="german")
+tm2 = textmatrix(td2, stemming=T, language="german", vocabulary=rownames(tm1) )
+lsatest( all( (rownames(tm1) == c("system", "hund")) == TRUE), "[textmatrix] - stemming (german)" )
+lsatest( all( (rownames(tm2) == c("system", "hund")) == TRUE), "[textmatrix] - fold-in with stemming (german)" )
+unlink(td2, recursive=TRUE)
+unlink(td1, recursive=TRUE)
+
+# -  -  -  -  -  -  -  -  -  -  -  -  -  -  
+# one term matrices
+
+td1 = tempfile()
+dir.create(td1)
+write( "systeme", file=paste(td1,"A1",sep="/") )
+tm1 = textmatrix(td1, stemming=T, language="german")
+lsatest( (rownames(tm1) == "system"), "[textmatrix] - one term matrix" )
+unlink(td1, recursive=TRUE)
