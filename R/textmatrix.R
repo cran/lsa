@@ -9,15 +9,30 @@
 ###    * bugfix textvector: stemming before (!) 
 ###      filtering with controlled vocabulary
 ###    * bugfix textvector: special chars better now
-
+###
+### 2008-08-31
+###    * iconv routines to solve character encoding problems
+###
+### 2009-01-30
+###    * removed german umlauts from non-alnum summary
+### 
 
 textvector <- function (file, stemming=FALSE, language="english", minWordLength=2, maxWordLength=FALSE, minDocFreq=1, maxDocFreq=FALSE, stopwords=NULL, vocabulary=NULL, phrases=NULL, removeXML=FALSE, removeNumbers=FALSE ) {
     
-    txt = scan(file, what = "character", quiet = TRUE, encoding = "UTF-8")
-    txt = tolower(txt)
+    txt = scan(file, what = "character", quiet = TRUE, encoding="UTF-8")
+	
+	txt = iconv(txt, to="UTF-8")
+    res = try(tolower(txt), TRUE)
+	if (class(res) == "try-error") {
+	   stop(paste("[lsa] - could not open file ",file," due to encoding problems of the file.", sep=""))
+	} else {
+	   txt = res
+	   res = NULL
+	   gc()
+	}
 
     ## Current version of R have the following bug:
-    ##     R> txt <- "ü "
+    ##     R> txt <- "Ã¼ "
     ##     R> Encoding(txt)
     ##     [1] "UTF-8"
     ##     R> Encoding(gsub( "[^[:alnum:]]", " ", txt))
@@ -25,31 +40,51 @@ textvector <- function (file, stemming=FALSE, language="english", minWordLength=
     ## (The space matters.)
     ## Hence, let's save the encoding and tag it back on ...
 
-    encoding <- Encoding(txt)
+	#encoding = Encoding(txt)
 	
     if (removeXML) {
-		txt = gsub("<[^>]*>"," ", paste(txt,collapse=" "), perl=T)
-		txt = gsub("&gt;",">", txt, perl=F, fixed=T)
-		txt = gsub("&lt;","<", txt, perl=F, fixed=T)
-		txt = gsub("&quot;","\"", txt, perl=F, fixed=T)
-		if (language=="german") {
-			txt = gsub("&auml;","ä", txt, perl=F, fixed=T) # \u00e4
-			txt = gsub("&ouml;","ö", txt, perl=F, fixed=T) # \u00f6
-			txt = gsub("&uuml;","ü", txt, perl=F, fixed=T) # \u00fc
-			txt = gsub("&szlig;","ß", txt, perl=F, fixed=T) # \u00df
-		}
-	}
+        txt = gsub("<[^>]*>"," ", paste(txt,collapse=" "), perl=TRUE)
+        txt = gsub("<[^>]*>"," ", paste(txt,collapse=" "), perl=TRUE)
+        txt = gsub("&gt;",">", txt, perl=FALSE, fixed=TRUE)
+        txt = gsub("&lt;","<", txt, perl=FALSE, fixed=TRUE)
+        txt = gsub("&quot;","\"", txt, perl=FALSE, fixed=TRUE)
+        if (language=="german" && l10n_info()$MBCS) {
+            txt = gsub("&auml;","ä", txt, perl=FALSE, fixed=TRUE) # \u00e4
+            txt = gsub("&ouml;","ö", txt, perl=FALSE, fixed=TRUE) # \u00f6
+            txt = gsub("&uuml;","ü", txt, perl=FALSE, fixed=TRUE) # \u00fc
+            txt = gsub("&szlig;","ß", txt, perl=FALSE, fixed=TRUE) # \u00df
+        }
+    }
 		
-	if (language=="arabic") {
-		# support for Buckwalter transliterations
-		txt = gsub( "[^[:alnum:]'\\_\\~$\\|><&{}*`\\-]", " ", txt)
-	} else {
-		txt = gsub( "[^[:alnum:]]", " ", txt)
-	}
+    if (language=="arabic") {
+        ## support for Buckwalter transliterations
+        txt = gsub( "[^[:alnum:]'\\_\\~$\\|><&{}*`\\-]", " ", txt)
+    } else if (!is.null(phrases)) {
+		
+		# collapse the list into a single character string
+		txt = paste(txt, collapse=" ")
+		
+        # identify phrases in the text
+        for (p in phrases) {
+           # convert phrase to "word1_word2_word3"
+           repl = gsub("[[:space:]]+", " ", as.character(p))
+           repl = gsub("[[:space:]]+", "_", repl)
+		   # replace the phrase in txt (slow but works)
+           txt = gsub(p, repl, txt)
+        }
+		
+        # filter the rest
+        txt = gsub("[^[:alnum:]\\_]", " ", txt)
+		
+		# split again by whitespaces
+		txt = unlist(strsplit(txt, " "))
+    } else {
+        txt = gsub( "[^[:alnum:]]", " ", txt)
+    }
 
     txt = gsub("[[:space:]]+", " ", txt)
 
-    Encoding(txt) <- encoding
+    # Encoding(txt) <- encoding
     
     txt = unlist(strsplit(txt, " ", fixed=TRUE))
     
@@ -74,11 +109,11 @@ textvector <- function (file, stemming=FALSE, language="english", minWordLength=
     tab = tab[nchar(names(tab), type="chars") >= minWordLength]
     if (is.numeric(maxWordLength)) tab = tab[nchar(names(tab), type="chars") <= maxWordLength]
     
-	if (removeNumbers) {
-		tab = tab[-grep("(^[0-9]+$)", names(tab), perl=T, extended=F)]
-	}
+    if (removeNumbers) {
+        tab = tab[-grep("(^[0-9]+$)", names(tab), perl=TRUE, extended=FALSE)]
+    }
 	
-	if (length(names(tab))==0) warning(paste("[textvector] - the file ", file, " contains no terms after filtering.", sep=""))
+    if (length(names(tab))==0) warning(paste("[textvector] - the file ", file, " contains no terms after filtering.", sep=""))
 	
     return( data.frame( docs=basename(file), terms = names(tab), Freq = tab, row.names = NULL) )
     
@@ -95,7 +130,7 @@ textmatrix <- function( mydir, stemming=FALSE, language="english", minWordLength
 		for (i in 1:length(mydir)) {
 		
 			if (file.info(normalizePath(mydir[i]))$isdir==TRUE) {
-				myfiles = append(myfiles, dir(mydir[i], full.names=TRUE, recursive=T))
+				myfiles = append(myfiles, dir(mydir[i], full.names=TRUE, recursive=TRUE))
 			} else if (file.exists(normalizePath(mydir[i]))) {				
 				myfiles = append(myfiles, normalizePath(mydir[i]))
 			} else {
@@ -105,7 +140,7 @@ textmatrix <- function( mydir, stemming=FALSE, language="english", minWordLength
 		}
 		
 	} else if ( file.info(normalizePath(mydir))$isdir==TRUE ) {
-		myfiles = dir(mydir, full.names=TRUE, recursive=T)
+		myfiles = dir(mydir, full.names=TRUE, recursive=TRUE)
 	} else if ( file.exists(normalizePath(mydir)) ==TRUE ) {
 		myfiles = normalizePath(mydir)
 	} else {
@@ -262,7 +297,7 @@ summary.textmatrix <- function ( object, ... ) {
     n[4] = "max term length";
     s[4] = max(nchar(rownames(object),type="chars"));
     n[5] = "non-alphanumerics in terms";
-    s[5] = length(which(gsub("[[:alnum:]]|[ÄÖÜäöüß]", "", rownames(object)) != ""));
+    s[5] = length(which(gsub("[[:alnum:]]", "", rownames(object)) != "")); 
     names(s) = n;
     class(s) = "summary.textmatrix";
     s
