@@ -44,7 +44,7 @@ your new data that you fold-in!
 \value{
   \item{textmatrix}{a textmatrix representation of the additional documents in the latent semantic space.}
 }
-\author{ Fridolin Wild \email{fridolin.wild@wu-wien.ac.at} }
+\author{ Fridolin Wild \email{f.wild@open.ac.uk} }
 \seealso{ \code{\link{textmatrix}}, \code{\link{lsa}}, \code{\link{as.textmatrix}} }
 \examples{
 
