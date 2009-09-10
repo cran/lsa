@@ -200,7 +200,6 @@ unlink(td1, recursive=TRUE)
 td1 = tempfile()
 write( c("<html>\n<head></head><body background=\"#FFFFFF\">&auml;bc<h1>test></h1></body></html>"), file=td1)
 lsatest( length(rownames(textmatrix(td1, removeXML=TRUE, language="german"))) == 2, "[textmatrix] - XML removal")
-### lsatest( rownames(textmatrix(td1, removeXML=TRUE, language="german"))[1] == "\u00e4bc", "[textmatrix] - html German umlaut replacement")
 unlink(td1)
 
 # -  -  -  -  -  -  -  -  -  -  -  -  -  -  
@@ -219,12 +218,12 @@ dir.create(td1)
 write( "HalAwaY_1    jan~ap_1    muriyd_1   taHoDiyr_1      |l_2", file=paste(td1,"A1",sep="/") )
 write( "HalAwap_2    jaraH-a_1   muro$id_1  taHoDiyriy~_1   |laY_1", file=paste(td1,"A2",sep="/") )
 write( "HalAyib_2    jaraY-i_1   muroDiy_1  taHoSiyl_1      |lam_1 ", file=paste(td1,"A3",sep="/") )
-lcc = Sys.getlocale("LC_ALL")
-Sys.setlocale("LC_ALL", "C")
+#lcc = Sys.getlocale("LC_ALL")
+#Sys.setlocale("LC_ALL", "C")
 lsatest("tahodiyriy~_1" %in% rownames(textmatrix(td1, language="arabic")),
         "[textmatrix] - arabic")
 unlink(td1, recursive=TRUE)
-Sys.setlocale("LC_ALL", lcc)
+#Sys.setlocale("LC_ALL", lcc)
 
 # -  -  -  -  -  -  -  -  -  -  -  -  -  -  
 # global frequency boundaries

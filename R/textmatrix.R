@@ -51,11 +51,11 @@ textvector <- function (file, stemming=FALSE, language="english", minWordLength=
         txt = gsub("&gt;",">", txt, perl=FALSE, fixed=TRUE)
         txt = gsub("&lt;","<", txt, perl=FALSE, fixed=TRUE)
         txt = gsub("&quot;","\"", txt, perl=FALSE, fixed=TRUE)
-        if (language=="german" && l10n_info()$MBCS) {
-            txt = gsub("&auml;","ae", txt, perl=FALSE, fixed=TRUE) # \u00e4
-            txt = gsub("&ouml;","oe", txt, perl=FALSE, fixed=TRUE) # \u00f6
-            txt = gsub("&uuml;","ue", txt, perl=FALSE, fixed=TRUE) # \u00fc
-            txt = gsub("&szlig;","ss", txt, perl=FALSE, fixed=TRUE) # \u00df
+        if (language=="german") { # && l10n_info()$MBCS
+            txt = gsub("&auml;","ae", txt, perl=FALSE, fixed=TRUE)
+            txt = gsub("&ouml;","oe", txt, perl=FALSE, fixed=TRUE)
+            txt = gsub("&uuml;","ue", txt, perl=FALSE, fixed=TRUE)
+            txt = gsub("&szlig;","ss", txt, perl=FALSE, fixed=TRUE)
         }
     }
 		
@@ -114,7 +114,7 @@ textvector <- function (file, stemming=FALSE, language="english", minWordLength=
     if (is.numeric(maxWordLength)) tab = tab[nchar(names(tab), type="chars") <= maxWordLength]
     
     if (removeNumbers) {
-        tab = tab[-grep("(^[0-9]+$)", names(tab), perl=TRUE, extended=FALSE)]
+        tab = tab[-grep("(^[0-9]+$)", names(tab), perl=TRUE)]
     }
 	
     if (length(names(tab))==0) warning(paste("[textvector] - the file ", file, " contains no terms after filtering.", sep=""))
