@@ -2,6 +2,8 @@
 ### testing routines for LSA package
 ### 
 
+Sys.setenv(NOAWT=TRUE)
+
 library(lsa)
 
 lsatest <- function(test, description) {
@@ -263,3 +265,20 @@ write( "systeme", file=paste(td1,"A1",sep="/") )
 tm1 = textmatrix(td1, stemming=T, language="german")
 lsatest( (rownames(tm1) == "system"), "[textmatrix] - one term matrix" )
 unlink(td1, recursive=TRUE)
+
+# -  -  -  -  -  -  -  -  -  -  -  -  -  -  
+# polish language support
+
+td1=tempfile()
+load("polski.RData")
+writeLines(polski, con=td1, useBytes=TRUE)
+polski2 = textvector(td1, language="polish")
+polski2['terms']
+Encoding(as.character(polski2[,"terms"]))
+polvec = "test\xc4\x85\xc4\x85\xc4\x99\xc4\x99\xc3\xb3\xc3\xb3\xc4\x87\xc4\x87\xc5\x82\xc5\x82\xc5\x84\xc5\x84\xc5\x9b\xc5\x9b\xc5\xba\xc5\xba\xc5\xbc\xc5\xbc"
+# enc2utf
+Encoding(polvec) = "UTF-8"
+polvec
+Encoding(polvec)
+lsatest( polski2['terms'] == polvec, "[textvector] - polish language support" )
+unlink(td1)

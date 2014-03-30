@@ -4,6 +4,16 @@
 ### dependencies: library("RStem")
 
 ### HISTORY
+###
+### 2014-03-21
+###    * fixed snowball dependancy to snowballC
+###
+### 2012-07-23
+###    * added html entity support and special chars support
+###      for polish
+###
+### 2012-02-28
+###    * added support for vietnamese transliterations
 ### 
 ### 2009-08-19
 ###    * exchanged Rstem with Snowball 
@@ -21,11 +31,12 @@
 ### 
 
 textvector <- function (file, stemming=FALSE, language="english", minWordLength=2, maxWordLength=FALSE, minDocFreq=1, maxDocFreq=FALSE, stopwords=NULL, vocabulary=NULL, phrases=NULL, removeXML=FALSE, removeNumbers=FALSE ) {
+   
+   #txt = scan(file, what = "character", quiet = TRUE, encoding="UTF-8", fileEncoding="UTF-8")
+   #txt = iconv(txt, to="UTF-8")
+   txt = readLines(file, warn = FALSE, encoding = "UTF-8")
     
-    txt = scan(file, what = "character", quiet = TRUE, encoding="UTF-8")
-	
-	txt = iconv(txt, to="UTF-8")
-    res = try(tolower(txt), TRUE)
+   res = try(tolower(txt), TRUE)
 	if (class(res) == "try-error") {
 	   stop(paste("[lsa] - could not open file ",file," due to encoding problems of the file.", sep=""))
 	} else {
@@ -33,95 +44,105 @@ textvector <- function (file, stemming=FALSE, language="english", minWordLength=
 	   res = NULL
 	   gc()
 	}
-
-    ## Current version of R have the following bug:
-    ##     R> txt <- "ae "
-    ##     R> Encoding(txt)
-    ##     [1] "UTF-8"
-    ##     R> Encoding(gsub( "[^[:alnum:]]", " ", txt))
-    ##     [1] "unknown"
-    ## (The space matters.)
-    ## Hence, let's save the encoding and tag it back on ...
-
+   
+   ## Current version of R have the following bug:
+   ##     R> txt <- "ae "
+   ##     R> Encoding(txt)
+   ##     [1] "UTF-8"
+   ##     R> Encoding(gsub( "[^[:alnum:]]", " ", txt))
+   ##     [1] "unknown"
+   ## (The space matters.)
+   ## Hence, let's save the encoding and tag it back on ...
+   
 	#encoding = Encoding(txt)
 	
-    if (removeXML) {
-        txt = gsub("<[^>]*>"," ", paste(txt,collapse=" "), perl=TRUE)
-        txt = gsub("<[^>]*>"," ", paste(txt,collapse=" "), perl=TRUE)
-        txt = gsub("&gt;",">", txt, perl=FALSE, fixed=TRUE)
-        txt = gsub("&lt;","<", txt, perl=FALSE, fixed=TRUE)
-        txt = gsub("&quot;","\"", txt, perl=FALSE, fixed=TRUE)
-        if (language=="german") { # && l10n_info()$MBCS
-            txt = gsub("&auml;","ae", txt, perl=FALSE, fixed=TRUE)
-            txt = gsub("&ouml;","oe", txt, perl=FALSE, fixed=TRUE)
-            txt = gsub("&uuml;","ue", txt, perl=FALSE, fixed=TRUE)
-            txt = gsub("&szlig;","ss", txt, perl=FALSE, fixed=TRUE)
-        }
-    }
-		
-    if (language=="arabic") {
-        ## support for Buckwalter transliterations
-        txt = gsub( "[^[:alnum:]'\\_\\~$\\|><&{}*`\\-]", " ", txt)
-    } else if (!is.null(phrases)) {
+   if (removeXML) {
+      txt = gsub("<[^>]*>"," ", paste(txt,collapse=" "), perl=TRUE)
+      txt = gsub("<[^>]*>"," ", paste(txt,collapse=" "), perl=TRUE)
+      txt = gsub("&gt;",">", txt, perl=FALSE, fixed=TRUE)
+      txt = gsub("&lt;","<", txt, perl=FALSE, fixed=TRUE)
+      txt = gsub("&quot;","\"", txt, perl=FALSE, fixed=TRUE)
+      if (language=="german" || language=="polish") { # && l10n_info()$MBCS
+         data(specialchars, envir = environment())
+         specialchars = get("specialchars", envir  = environment())
+         for (sc in 1:length(specialchars$entities)) {
+	         txt = gsub(specialchars$entities[sc],specialchars$replacement[sc], txt, perl=FALSE, fixed=TRUE)
+         }
+      }
+   }
+   
+   if (language=="arabic") {
+      ## support for Buckwalter transliterations
+      txt = gsub( "[^[:alnum:]'\\_\\~$\\|><&{}*`\\-]", " ", txt)
+   } else if (language=="vietnamese") {
+      ## support for transliterations with _ to connect words, i.e.
+      ## replace everything that is non alphanumeric and not _
+      txt = gsub( "[^[:alnum:]\\_]", " ", txt)
+   } else if (!is.null(phrases)) {
 		
 		# collapse the list into a single character string
 		txt = paste(txt, collapse=" ")
 		
-        # identify phrases in the text
-        for (p in phrases) {
-           # convert phrase to "word1_word2_word3"
-           repl = gsub("[[:space:]]+", " ", as.character(p))
-           repl = gsub("[[:space:]]+", "_", repl)
+      # identify phrases in the text
+      for (p in phrases) {
+         # convert phrase to "word1_word2_word3"
+         repl = gsub("[[:space:]]+", " ", as.character(p))
+         repl = gsub("[[:space:]]+", "_", repl)
 		   # replace the phrase in txt (slow but works)
-           txt = gsub(p, repl, txt)
-        }
+         txt = gsub(p, repl, txt)
+      }
 		
-        # filter the rest
-        txt = gsub("[^[:alnum:]\\_]", " ", txt)
+      # filter the rest
+      data(alnumx, envir = environment())
+      alnumx = get("alnumx", envir  = environment())
+      txt = gsub(alnumx, " ", txt)
 		
-		# split again by whitespaces
-		txt = unlist(strsplit(txt, " "))
-    } else {
-        txt = gsub( "[^[:alnum:]]", " ", txt)
-    }
-
-    txt = gsub("[[:space:]]+", " ", txt)
-
-    # Encoding(txt) <- encoding
-    
-    txt = unlist(strsplit(txt, " ", fixed=TRUE))
-    
-    # stopword filtering?
-    if (!is.null(stopwords)) txt = txt[!txt %in% stopwords]
-
-    # tabulate
-    tab = sort(table(txt), decreasing = TRUE)
-    
-    # stemming?
-    #if (stemming) names(tab) = wordStem(names(tab), language=language)
-    if (stemming) names(tab) = SnowballStemmer(names(tab), Weka_control(S=language))
+      # split again by whitespaces
+      txt = unlist(strsplit(txt, " "))
+   } else {
+      data(alnumx, envir = environment())
+      alnumx = get("alnumx", envir  = environment())
+      txt = gsub( alnumx, " ", txt)
+   }
+   
+   txt = gsub("[[:space:]]+", " ", txt)
+   
+   # Encoding(txt) <- encoding
+   
+   txt = unlist(strsplit(txt, " ", fixed=TRUE))
+   
+   # stopword filtering?
+   if (!is.null(stopwords)) txt = txt[!txt %in% stopwords]
+   
+   # tabulate
+   tab = sort(table(txt), decreasing = TRUE)
+   
+   # stemming?
+   #if (stemming) names(tab) = wordStem(names(tab), language=language)
+   if (stemming) names(tab) = wordStem(names(tab), language)
 	
-    # vocabulary filtering?
-    #if (!is.null(vocabulary)) txt = txt[txt %in% vocabulary]
+   # vocabulary filtering?
+   #if (!is.null(vocabulary)) txt = txt[txt %in% vocabulary]
 	if (!is.null(vocabulary)) tab = tab[names(tab) %in% vocabulary]
-    
-    # bandwith for document frequency?
-    tab = tab[tab >= minDocFreq]
+   
+   # bandwith for document frequency?
+   tab = tab[tab >= minDocFreq]
 	if (is.numeric(maxDocFreq)) tab = tab[tab <= maxDocFreq]
-    
-    # word-length filtering?
-    tab = tab[nchar(names(tab), type="chars") >= minWordLength]
-    if (is.numeric(maxWordLength)) tab = tab[nchar(names(tab), type="chars") <= maxWordLength]
-    
-    if (removeNumbers) {
-        tab = tab[-grep("(^[0-9]+$)", names(tab), perl=TRUE)]
-    }
+   
+   # word-length filtering?
+   tab = tab[nchar(names(tab), type="chars") >= minWordLength]
+   if (is.numeric(maxWordLength)) tab = tab[nchar(names(tab), type="chars") <= maxWordLength]
+   
+   if (removeNumbers) {
+      tab = tab[-grep("(^[0-9]+$)", names(tab), perl=TRUE)]
+   }
 	
-    if (length(names(tab))==0) warning(paste("[textvector] - the file ", file, " contains no terms after filtering.", sep=""))
+   if (length(names(tab))==0) warning(paste("[textvector] - the file ", file, " contains no terms after filtering.", sep=""))
 	
-    return( data.frame( docs=basename(file), terms = names(tab), Freq = tab, row.names = NULL) )
-    
+   return( data.frame( docs=basename(file), terms = names(tab), Freq = tab, row.names = NULL) )
+   
 }
+
 
 textmatrix <- function( mydir, stemming=FALSE, language="english", minWordLength=2, maxWordLength=FALSE, minDocFreq=1, maxDocFreq=FALSE, minGlobFreq=FALSE, maxGlobFreq=FALSE, stopwords=NULL, vocabulary=NULL, phrases=NULL, removeXML=FALSE, removeNumbers=FALSE) {
     

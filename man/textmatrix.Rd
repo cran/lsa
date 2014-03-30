@@ -28,7 +28,7 @@ textvector( file, stemming=FALSE, language="english",
    \item{minGlobFreq}{words which appear in less than minGlobFreq documents will be ignored.}
    \item{maxGlobFreq}{words which appear in more than maxGlobFreq documents will be ignored.}
    \item{stopwords}{a stopword list that contains terms the will be ignored.}
-   \item{vocabulary}{if specified, only words in this term list will be used for building the matrix (`controlled vocabulary').}
+   \item{vocabulary}{a character vector containing the words: only words in this term list will be used for building the matrix (`controlled vocabulary').}
    \item{removeXML}{if set to \code{TRUE}, XML tags (elements, attributes, some special characters) will be removed.}
    \item{removeNumbers}{if set to \code{TRUE}, terms that consist only out of numbers will be removed.}
    \item{phrases}{not implemented, yet.}
@@ -39,7 +39,7 @@ textvector( file, stemming=FALSE, language="english",
   of every word for all documents. If specified, simple text preprocessing mechanisms
   are applied (stemming, stopword filtering, wordlength cutoffs).
   
-  Stemming thereby uses Porter's snowball stemmer (from package \code{Snowball}).
+  Stemming thereby uses Porter's snowball stemmer (from package \code{SnowballC}).
   
   There are two stopword lists included (for english and for german), which
   are loaded on demand into the variables \code{stopwords_de} and 
@@ -62,7 +62,7 @@ textvector( file, stemming=FALSE, language="english",
   \item{textmatrix}{the document-term matrix (incl. row and column names).}
 }
 \author{ Fridolin Wild \email{f.wild@open.ac.uk} }
-\seealso{ \code{\link[Snowball]{SnowballStemmer}}, \code{\link{stopwords_de}}, \code{\link{stopwords_en}}, \code{\link{setTriple}}, \code{\link{getTriple}}}
+\seealso{ \code{\link[SnowballC]{wordStem}}, \code{\link{stopwords_de}}, \code{\link{stopwords_en}}, \code{\link{setTriple}}, \code{\link{getTriple}}}
 \examples{
 
 # create some files
