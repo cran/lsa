@@ -1,13 +1,13 @@
 244e88546f6847be8427bd127a6aa6c5 *ChangeLog
-838c8223c889245e6f8e5372c642460a *DESCRIPTION
+1bc2e58224be9f3852a7684d443ee605 *DESCRIPTION
 293737756245ad976386c8ea9ca54799 *NAMESPACE
 cc8ed516ff1dc8216a72a50fa981c20f *R/associate.R
 c03bf0cf567f2d191f7d9891620e129e *R/cosine.R
 4326b6d97148b8aabebba452386bdb27 *R/dimcalc.R
 ddf5c3ca51f70714e74a3be41b394539 *R/lsa.R
 dbcbe438c6918dd1e53958846ce6cd1b *R/query.R
-348c79a4f0676e2348a80f5b0e85ed85 *R/sample.textmatrix.R
-2fabea6430dc9a41516b69508894a421 *R/textmatrix.R
+fb3268a5892371f6ca78abed2a4bf592 *R/sample.textmatrix.R
+4c340daa2e4486352873c8adbd59e0dd *R/textmatrix.R
 91d9d2967a6524d391c7a50d7ae4d93b *R/triples.R
 2adaf6e806b472456822d4a318401233 *R/weightings.R
 a30392041098b82b84a439fa5568b1fc *data/alnumx.rda
@@ -41,6 +41,6 @@ f3b82b846debc5bd1afb60811a0916f9 *man/query.Rd
 992d7b6e283d8dcf132cb4e149055d1b *man/summary.textmatrix.Rd
 b4e3f9b0baf54d3760fd17b8e211be07 *man/textmatrix.Rd
 92b4bce20511529b3ceb4390eb17ab39 *man/triples.Rd
-dcc6d5ca71d54557bc8d18b38935fd74 *man/weightings.Rd
+2a2c50671fbbd48a1e23b622be41bc36 *man/weightings.Rd
 93ccf396f1e7de49ce25417150997d10 *tests/lsa-tests.R
 f1707f99baf8d2c9321da6cc95f5bb0d *tests/polski.RData

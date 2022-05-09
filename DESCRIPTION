@@ -1,6 +1,6 @@
 Package: lsa
 Title: Latent Semantic Analysis
-Version: 0.73.2
+Version: 0.73.3
 Author: Fridolin Wild
 Description: The basic idea of latent semantic analysis (LSA) is, 
   that text do have a higher order (=latent semantic) structure which, 
@@ -16,6 +16,6 @@ Encoding: UTF-8
 LazyData: yes
 BuildResaveData: no
 NeedsCompilation: no
-Packaged: 2020-05-04 12:25:38 UTC; hornik
+Packaged: 2022-05-09 06:24:58 UTC; hornik
 Repository: CRAN
-Date/Publication: 2020-05-04 12:39:10 UTC
+Date/Publication: 2022-05-09 06:58:26 UTC
