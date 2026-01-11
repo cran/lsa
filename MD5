@@ -1,5 +1,5 @@
 244e88546f6847be8427bd127a6aa6c5 *ChangeLog
-1bc2e58224be9f3852a7684d443ee605 *DESCRIPTION
+b7552b1c856c213c411efd77aa5489bd *DESCRIPTION
 293737756245ad976386c8ea9ca54799 *NAMESPACE
 cc8ed516ff1dc8216a72a50fa981c20f *R/associate.R
 c03bf0cf567f2d191f7d9891620e129e *R/cosine.R
@@ -36,7 +36,7 @@ bf0207e41c4395705c3c472f24993dcb *man/foldin.Rd
 9c62bba4a585ab904020b8d2dd2e5c02 *man/print.textmatrix.Rd
 f3b82b846debc5bd1afb60811a0916f9 *man/query.Rd
 0428b5557c034fd16058d325c38905fa *man/sample.textmatrix.Rd
-72de3ea3eee79488120940bee221fd55 *man/specialchars.Rd
+c733ac7777634f9e44c388b1ada7c37c *man/specialchars.Rd
 3d217703d651edbc94caf6520c4ca684 *man/stopwords.Rd
 992d7b6e283d8dcf132cb4e149055d1b *man/summary.textmatrix.Rd
 b4e3f9b0baf54d3760fd17b8e211be07 *man/textmatrix.Rd
